@@ -73,11 +73,11 @@ weather_json <- fromJSON(content(response, "text"))
 
 # Create data frame
 weather_data <- data.frame(
-  date = weather_json$daily$time,
-  max_temp = weather_json$daily$temperature_2m_max,
-  min_temp = weather_json$daily$temperature_2m_min,
+  date = as.Date(weather_json$daily$time), max_temp = weather_json$daily$temperature_2m_max,
+  min_temp =weather_json$daily$temperature_2m_min,
   precipitation = weather_json$daily$precipitation_sum
 )
+
 
 # Data processing using dplyr
 weather_data <- weather_data %>%
@@ -121,7 +121,7 @@ mean(weather_data$precipitation)
 # Visualisation 1 – Maximum and Minimum Temperature Trend
 
 ```{r}
-ggplot(weather_data, aes(x = date)) +
+ggplot(weather_data, aes(x = date, group = 1)) +
   geom_line(aes(y = max_temp, color = "Maximum Temperature"), linewidth = 1.2) +
   geom_line(aes(y = min_temp, color = "Minimum Temperature"), linewidth = 1.2) +
   labs(
