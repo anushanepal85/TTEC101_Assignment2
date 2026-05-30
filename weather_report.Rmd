@@ -4,7 +4,7 @@ title: "Weather Data Analytics Using Open-Meteo API"
 author: "Anusha Nepal"
 date: "2026"
 output: html_document
----------------------
+---
 
 # Introduction
 
@@ -53,18 +53,14 @@ Finally, insights and interpretations were generated from the analysis to explai
 
 # R Code – Data Collection and Processing
 
-```{r}
-# Install required packages
-install.packages("httr")
-install.packages("jsonlite")
-install.packages("dplyr")
-install.packages("ggplot2")
 
+```{r}
 # Load libraries
 library(httr)
 library(jsonlite)
 library(dplyr)
 library(ggplot2)
+
 
 # API URL
 url <- "https://api.open-meteo.com/v1/forecast?latitude=-33.8688&longitude=151.2093&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Australia%2FSydney"
@@ -73,25 +69,24 @@ url <- "https://api.open-meteo.com/v1/forecast?latitude=-33.8688&longitude=151.2
 response <- GET(url)
 
 # Convert JSON content
-weather_data <- fromJSON(content(response, "text"))
+weather_json <- fromJSON(content(response, "text"))
 
 # Create data frame
-weather_df <- data.frame(
-  date = weather_data$daily$time,
-  max_temp = weather_data$daily$temperature_2m_max,
-  min_temp = weather_data$daily$temperature_2m_min,
-  precipitation = weather_data$daily$precipitation_sum
+weather_data <- data.frame(
+  date = weather_json$daily$time,
+  max_temp = weather_json$daily$temperature_2m_max,
+  min_temp = weather_json$daily$temperature_2m_min,
+  precipitation = weather_json$daily$precipitation_sum
 )
 
 # Data processing using dplyr
-weather_df <- weather_df %>%
+weather_data <- weather_data %>%
   mutate(
     avg_temp = (max_temp + min_temp) / 2,
     temp_range = max_temp - min_temp
   )
-
+```{r}
 # Display first rows
-head(weather_df)
 ```
 
 ---
@@ -108,27 +103,25 @@ The analysis also identified relationships between temperature and rainfall. Day
 
 The dataset demonstrates how weather data can be analysed using R to identify trends and support interpretation of environmental conditions.
 
----
-
+head(weather_data)
 # Summary Statistics
 
-```{r}
+
 # Summary statistics
-summary(weather_df)
+summary(weather_data)
 
 # Mean values
-mean(weather_df$max_temp)
-mean(weather_df$min_temp)
-mean(weather_df$avg_temp)
-mean(weather_df$precipitation)
-```
+mean(weather_data$max_temp)
+mean(weather_data$min_temp)
+mean(weather_data$avg_temp)
+mean(weather_data$precipitation)
 
----
+
 
 # Visualisation 1 – Maximum and Minimum Temperature Trend
 
 ```{r}
-ggplot(weather_df, aes(x = date)) +
+ggplot(weather_data, aes(x = date)) +
   geom_line(aes(y = max_temp, color = "Maximum Temperature"), linewidth = 1.2) +
   geom_line(aes(y = min_temp, color = "Minimum Temperature"), linewidth = 1.2) +
   labs(
@@ -149,7 +142,7 @@ This chart shows the daily variation in maximum and minimum temperatures. The gr
 # Visualisation 2 – Daily Precipitation
 
 ```{r}
-ggplot(weather_df, aes(x = date, y = precipitation)) +
+ggplot(weather_data, aes(x = date, y = precipitation)) +
   geom_bar(stat = "identity", fill = "skyblue") +
   labs(
     title = "Daily Precipitation Levels",
@@ -168,7 +161,7 @@ This chart displays daily rainfall levels across the dataset. The visualisation 
 # Visualisation 3 – Average Temperature Distribution
 
 ```{r}
-ggplot(weather_df, aes(x = date, y = avg_temp)) +
+ggplot(weather_data, aes(x = date, y = avg_temp)) +
   geom_point(color = "red", size = 3) +
   geom_line(group = 1, color = "darkred") +
   labs(
