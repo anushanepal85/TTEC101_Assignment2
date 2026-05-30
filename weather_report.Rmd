@@ -1,7 +1,7 @@
 ---
 
 title: "Weather Data Analytics Using Open-Meteo API"
-author: "Anusha Nepal, Susmita T Magar, Deepma Poudel"
+author: "Anusha Nepal, Susmita Thapa Magar, Deepma Poudel"
 date: "2026"
 output: html_document
 ---
