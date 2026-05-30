@@ -1,0 +1,210 @@
+---
+
+title: "Weather Data Analytics Using Open-Meteo API"
+author: "Anusha Nepal"
+date: "2026"
+output: html_document
+---------------------
+
+# Introduction
+
+Weather forecasting and climate analysis are important applications of data analytics. Organisations use weather data to support decision-making in agriculture, tourism, transportation, and environmental planning. The purpose of this project is to collect real-world weather data using the Open-Meteo API and analyse the data using R programming.
+
+This project demonstrates how APIs can be used to retrieve real-time data and transform it into meaningful insights. The dataset used in this report contains daily weather information including maximum temperature, minimum temperature, and precipitation values. The data was processed using R libraries such as `httr`, `jsonlite`, `dplyr`, and `ggplot2`.
+
+The project also applies data cleaning, summary statistics, visualisation, and trend analysis techniques. The final outcome provides useful insights into weather conditions and demonstrates the importance of data analytics in interpreting environmental data.
+
+---
+
+# Data Source
+
+The primary data source for this project is the Open-Meteo API. Open-Meteo is a free weather API that provides historical and forecast weather data in JSON format. The API allows developers and analysts to access weather information by specifying geographic coordinates and required weather variables.
+
+The API request used in this project retrieves daily weather data for Sydney, Australia. The following variables were collected:
+
+* `temperature_2m_max` – Daily maximum temperature in degrees Celsius
+* `temperature_2m_min` – Daily minimum temperature in degrees Celsius
+* `precipitation_sum` – Total daily rainfall in millimetres
+* `time` – Date of weather observation
+
+The API returns the data in JSON format, which is then converted into a structured data frame using R.
+
+Example API URL:
+
+```r
+url <- "https://api.open-meteo.com/v1/forecast?latitude=-33.8688&longitude=151.2093&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Australia%2FSydney"
+```
+
+---
+
+# Methodology
+
+The project followed several stages including data collection, data processing, analysis, and visualisation.
+
+First, the Open-Meteo API was accessed using the `httr` package in R. The API response was received in JSON format. The `jsonlite` package was then used to parse the JSON data into an R list structure.
+
+Next, the weather variables were extracted and converted into a data frame. Additional variables such as average temperature and temperature range were created using `dplyr`. Summary statistics including mean, maximum, and minimum values were calculated to understand overall weather conditions.
+
+The project also used `ggplot2` to create visualisations that support the analysis. Three charts were developed to identify weather patterns and trends. These charts include temperature trends, precipitation patterns, and temperature comparison visualisations.
+
+Finally, insights and interpretations were generated from the analysis to explain the observed weather conditions.
+
+---
+
+# R Code – Data Collection and Processing
+
+```{r}
+# Install required packages
+install.packages("httr")
+install.packages("jsonlite")
+install.packages("dplyr")
+install.packages("ggplot2")
+
+# Load libraries
+library(httr)
+library(jsonlite)
+library(dplyr)
+library(ggplot2)
+
+# API URL
+url <- "https://api.open-meteo.com/v1/forecast?latitude=-33.8688&longitude=151.2093&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Australia%2FSydney"
+
+# Retrieve API data
+response <- GET(url)
+
+# Convert JSON content
+weather_data <- fromJSON(content(response, "text"))
+
+# Create data frame
+weather_df <- data.frame(
+  date = weather_data$daily$time,
+  max_temp = weather_data$daily$temperature_2m_max,
+  min_temp = weather_data$daily$temperature_2m_min,
+  precipitation = weather_data$daily$precipitation_sum
+)
+
+# Data processing using dplyr
+weather_df <- weather_df %>%
+  mutate(
+    avg_temp = (max_temp + min_temp) / 2,
+    temp_range = max_temp - min_temp
+  )
+
+# Display first rows
+head(weather_df)
+```
+
+---
+
+# Data Analysis
+
+The analysis of the weather dataset identified several important patterns in temperature and rainfall. Summary statistics were generated to understand the overall climate conditions during the observation period.
+
+The average maximum temperature was relatively high, indicating warm daytime conditions in Sydney. The minimum temperatures remained moderate throughout the dataset, showing stable night-time weather conditions. The temperature range variable revealed daily fluctuations between daytime and night-time temperatures.
+
+Rainfall analysis showed that precipitation levels varied across different days. Some days experienced little or no rainfall, while others recorded higher precipitation values. This variation suggests changing weather conditions over the observation period.
+
+The analysis also identified relationships between temperature and rainfall. Days with lower temperatures generally showed higher precipitation levels, indicating cloudy or rainy weather conditions. In contrast, warmer days were often associated with lower rainfall.
+
+The dataset demonstrates how weather data can be analysed using R to identify trends and support interpretation of environmental conditions.
+
+---
+
+# Summary Statistics
+
+```{r}
+# Summary statistics
+summary(weather_df)
+
+# Mean values
+mean(weather_df$max_temp)
+mean(weather_df$min_temp)
+mean(weather_df$avg_temp)
+mean(weather_df$precipitation)
+```
+
+---
+
+# Visualisation 1 – Maximum and Minimum Temperature Trend
+
+```{r}
+ggplot(weather_df, aes(x = date)) +
+  geom_line(aes(y = max_temp, color = "Maximum Temperature"), linewidth = 1.2) +
+  geom_line(aes(y = min_temp, color = "Minimum Temperature"), linewidth = 1.2) +
+  labs(
+    title = "Daily Maximum and Minimum Temperature",
+    x = "Date",
+    y = "Temperature (°C)",
+    color = "Legend"
+  ) +
+  theme_minimal()
+```
+
+### Explanation
+
+This chart shows the daily variation in maximum and minimum temperatures. The graph demonstrates that maximum temperatures remained consistently higher than minimum temperatures throughout the observation period. The trend also shows moderate fluctuations in daily weather conditions.
+
+---
+
+# Visualisation 2 – Daily Precipitation
+
+```{r}
+ggplot(weather_df, aes(x = date, y = precipitation)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(
+    title = "Daily Precipitation Levels",
+    x = "Date",
+    y = "Precipitation (mm)"
+  ) +
+  theme_minimal()
+```
+
+### Explanation
+
+This chart displays daily rainfall levels across the dataset. The visualisation indicates that some days had very low precipitation while other days experienced higher rainfall. This variation highlights changing weather patterns during the period.
+
+---
+
+# Visualisation 3 – Average Temperature Distribution
+
+```{r}
+ggplot(weather_df, aes(x = date, y = avg_temp)) +
+  geom_point(color = "red", size = 3) +
+  geom_line(group = 1, color = "darkred") +
+  labs(
+    title = "Average Daily Temperature",
+    x = "Date",
+    y = "Average Temperature (°C)"
+  ) +
+  theme_minimal()
+```
+
+### Explanation
+
+This visualisation presents the average daily temperature calculated from maximum and minimum temperature values. The chart helps identify overall temperature patterns and shows that average temperatures remained relatively stable with slight fluctuations.
+
+---
+
+# Key Findings
+
+Several important findings were identified during the analysis of the weather dataset.
+
+First, maximum temperatures were consistently higher than minimum temperatures, indicating stable daytime heating patterns. The difference between daytime and night-time temperatures remained moderate throughout the dataset.
+
+Second, precipitation levels varied significantly between days. Some days recorded almost no rainfall while others experienced noticeable precipitation. This suggests changing atmospheric conditions over the observation period.
+
+Third, average temperatures remained relatively stable, indicating balanced weather conditions in Sydney during the analysed period. There were no extreme temperature changes, which suggests mild climate behaviour.
+
+Another key observation was the relationship between rainfall and temperature. Days with increased precipitation generally showed slightly lower average temperatures. This pattern is common because rainy conditions are often associated with cooler weather.
+
+Overall, the analysis demonstrates how weather data collected from APIs can be transformed into meaningful insights using R programming and data visualisation techniques.
+
+---
+
+# Conclusion
+
+This project successfully demonstrated the use of the Open-Meteo API to retrieve real-world weather data and analyse it using R programming. The data was processed using `dplyr`, visualised using `ggplot2`, and interpreted to identify important weather trends and patterns.
+
+The analysis revealed stable temperature conditions with varying precipitation levels throughout the observation period. Visualisations helped explain changes in temperature and rainfall more clearly. The project also highlighted the importance of APIs and data analytics tools in extracting valuable insights from environmental data.
+
+Overall, this assignment provided practical experience in data collection, processing, analysis, and reporting using R and web APIs.
